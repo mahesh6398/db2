@@ -1,0 +1,38 @@
+create table doctor (d_ssn varchar(10) primary key,d_name varchar(20),speciality varchar(20),experience varchar(10));
+create table patient (p_ssn varchar(10) primary key,p_name varchar(20),address varchar(20),age int(10));
+create table pharmacy(p_name varchar(20) primary key,address varchar(20),p_phone bigint);
+create table pharma_company(c_name varchar(20) primary key,address varchar(20),phone bigint);
+create table drug(tradename varchar(20) primary key,formula varchar(20),c_name varchar(20),foreign key(c_name) references pharma_company(c_name));
+create table contract (c_name varchar(20),p_name varchar(20),foreign key (c_name) references pharma_company(c_name),foreign key (p_name) references pharmacy(p_name),startdate date,enddate date,text varchar(20),supervisor varchar(20),primary key (c_name,p_name));
+create table checks(d_ssn varchar(10),p_ssn varchar(10),foreign key(d_ssn) references doctor(d_ssn),foreign key(p_ssn) references patient(p_ssn),primary key (d_ssn,p_ssn));
+create table prescribe (d_ssn varchar(10),p_ssn varchar(10),tradename varchar(20),foreign key (d_ssn) references doctor(d_ssn),foreign key (p_ssn) references patient(p_ssn),foreign key (tradename) references drug(tradename),p_date date,qty varchar(10),primary key(d_ssn,p_ssn,tradename));
+create table sell (tradename varchar(20),p_name varchar(20),foreign key (tradename) references drug(tradename),foreign key (p_name) references pharmacy(p_name),primary key(tradename,p_name));
+
+
+insert into doctor values("d01","Dr.Ashwinkumarkudari","gastroenterologist","20"),("d02","Dr.Amarnath reddy","orthopaedics","18"),("d03","Dr.Aditi singhvi","cardiology","11"),("d04","Dr.Nandini","opthalmologist","12"),("d05","Dr.Raghu","hematology","15"),("d06","Dr.Ravikanth","otology","16"),("d07","Dr.Suresh reddy","pharmacology","18"),("d08","Dr.Himansu","psychology","22");
+
+insert into patient values("p01","chandan","Bangalore",23),("p02","Bharath","Uttar kannada",24),("p03","Aman khan","Hyderbad",22),("p04","Aditi","Bangalore",19),("p05","Ravi hugar","Raichur",19),("p06","Suresh bhat","mangalore",25),("p07","guru","mysore",30),("p08","manjula","mandya",41),("p09","narmadamma","Bangalore",45),("p10","yashawanta","Bangalore",46);
+
+insert into pharma_company values("Bharath biotech","Bangalore",7852432045),("Biocon","Bangalore",7852432045),("Dr.reddy laboratory","Hyderbad",9851432045),("cipla","Hyderbad",9851432045),("FDC Ltd","Mumbai",8751431145),("Zydus","Mumbai",9001431145),("sun pharma","Bangalore",9771131145),("AM pharma","Bangalore",8550031145);
+
+insert into pharmacy values("krishna pharmacy","Bangalore",8577031053),("Mahadev pharmacy","Bangalore",8550031002),("suraj medicals","Banashankari",9577031054),("SLV medicals","Bommanahalli",9577031054),("Srinivas pharma","Silk board",9577031054),("Apollo Pharmacy","Bangalore",9577031054),("sheshadri medicals","Mumbai",9566131054),("Medplus","kolkota",8516131052),("SS pharma","delhi",7516131038);
+
+insert into drug values("Antacids","XYX","Bharath biotech"),("Lactulose","ZYX","AM pharma"),("Antidiarrheal","zzYX","cipla"),("Baclofen","QZYX","Dr.reddy laboratory"),("Aspirin","QXYX","Biocon"),("clot buster","ZXQX","FDC Ltd"),("Diamox","ZZYY","Zydus"),("Etomidate","ZQYY","sun pharma");
+
+insert into checks values ("d01","p01"),("d01","p02"),("d02","p03"),("d03","p04"),("d04","p05"),("d05","p06"),("d06","p07"),("d07","p08"),("d08","p09"),("d08","p10"),("d05","p01"),("d04","p02");
+
+insert into prescribe values("d01","p02","Baclofen",20200410,04),("d02","p03","Etomidate",20200112,06),("d03","p04","Aspirin",20211112,05),("d04","p05","Antacids",20201222,06),("d05","p06","Lactulose",20200829,04),("d06","p07","Antidiarrheal",20200730,06),("d07","p08","Antidiarrheal",20200703,07),("d08","p09","clot buster",20130703,06),("d08","p10","Aspirin",20131003,05);
+
+insert into contract values ("AM pharma","Mahadev pharmacy",20191001,20231001,"3 year contract","Akash"),("AM pharma","krishna pharmacy",20201101,20231001,"2 year contract","Abishek"),("AM pharma","Apollo Pharmacy",20201101,20240301,"2 year contract","chandara"),("Biocon","Medplus",20221101,20250301,"3 year contract","Karthik"),("cipla","sheshadri medicals",20221101,20250301,"3 year contract","Anupam patel"),("FDC Ltd","SLV medicals",20221101,20240301,"2 year contract","chetan sharma"),("Zydus","SS pharma",20221101,20240301,"2 year contract","keerthi sharma"),("Zydus","suraj medicals",20211101,20240301,"3 year contract","prabhu gouda"),("sun pharma","Srinivas pharma",20211101,20240301,"3 year contract","Ramesh patil");
+
+insert into sell values("Diamox","Apollo Pharmacy"),("Baclofen","Medplus"),("Aspirin","SS pharma"),("Etomidate","SLV medicals"),("Lactulose","suraj medicals"),("Antacids","krishna pharmacy"),("Antidiarrheal","sheshadri medicals"),("clot buster","Mahadev pharmacy"),("Diamox","Medplus"),("Diamox","SS pharma"),("Diamox","SLV medicals"),("Diamox","suraj medicals"),("Diamox","krishna pharmacy"),("Diamox","sheshadri medicals"),("Diamox","Mahadev pharmacy"),("Diamox","Srinivas pharma");
+
+
+1)select p.* from patient p,doctor d,checks c where p.p_ssn=c.p_ssn and d.d_ssn=c.d_ssn and p.age>=20 and d.speciality="opthalmologist";
+2)select d.*,count(p.d_ssn) from doctor d,prescribe p where d.d_ssn=p.d_ssn and year(p.p_date)='2013' group by p.d_ssn having count(p.d_ssn)>=2;
+3)select * from doctor where experience in(select max(experience) from doctor);
+4)select p.* from pharma_company p,contract c,pharmacy ph where ph.p_name=c.p_name and p.c_name=c.c_name and p.address=ph.address group by p.c_name having count(c.p_name)>=2;
+5)select d.tradename from drug d,pharmacy p,sell s where p.p_name=s.p_name and d.tradename=s.tradename group by s.tradename having count(s.tradename)=1;
+6)select d.tradename from drug d,pharmacy p,sell s where p.p_name=s.p_name and d.tradename=s.tradename group by s.tradename having count(s.tradename)=(select count(*) from pharmacy);
+
+
